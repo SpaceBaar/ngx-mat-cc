@@ -1,6 +1,5 @@
 import { AbstractControl, ValidationErrors, Validators } from '@angular/forms';
 import { CreditCard } from '../shared/credit-card';
-import { getTypeInfo, types as CardType } from 'credit-card-type';
 
 export class CreditCardValidator {
   static validateCCNumber(control: AbstractControl): ValidationErrors|null {
@@ -14,17 +13,17 @@ export class CreditCardValidator {
       return {ccNumber: true};
     }
 
-    const card = getTypeInfo(num);
+    const card = CreditCard.cardFromNumber(num);
 
     if (!card) {
       return {ccNumber: true};
     }
 
-    if (card.lengths.includes(num.length) && CreditCard.luhnCheck(num)) {
+    if (card.length.includes(num.length) && (card.luhn === false || CreditCard.luhnCheck(num))) {
       return null;
     }
 
-    const upperlength = card.lengths[card.lengths.length - 1];
+    const upperlength = card.length[card.length.length - 1];
     if (num.length > upperlength) {
       const registeredNum = num.substring(0, upperlength);
       if (CreditCard.luhnCheck(registeredNum)) {
