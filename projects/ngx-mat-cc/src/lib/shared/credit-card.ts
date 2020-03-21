@@ -140,7 +140,7 @@ export class CreditCard {
 
   public static formatCardNumber(num: string) {
     let card;
-    let groups: void[];
+    let groups;
     let upperLength;
 
     num = num.replace(/\D/g, '');
@@ -150,7 +150,7 @@ export class CreditCard {
       return num;
     }
 
-    upperLength = card.lengths[card.lengths.length - 1];
+    upperLength = card.length[card.length.length - 1];
     num = num.slice(0, upperLength);
 
     if (card.format.global) {
@@ -212,9 +212,9 @@ export class CreditCard {
       return true;
     }
     value = (target.value + digit).replace(/\D/g, '');
-    card = this.cardFromNumber(value);
+    card = CreditCard.cardFromNumber(value);
     if (card) {
-      result = value.length <= card.lengths[card.lengths.length - 1];
+      result = value.length <= card.length[card.length.length - 1];
     } else {
       result = value.length <= 16;
     }
