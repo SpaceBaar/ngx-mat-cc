@@ -1,27 +1,103 @@
-# NgxMatCc
+# Description
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.1.
+Angular CC Library - for validation and formating of input parameters
 
-## Development server
+# Demo
+1. Clone repo
+2. run `npm install`
+3. run `npm run dev`
+4. visit `http://localhost:4200`
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+# Usage
 
-## Code scaffolding
+## Installation
+```shell
+npm install angular-cc-library --save
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Formating Directive
+On the input fields, add the specific directive to format inputs. 
+All fields must be `type='tel'` in order to support spacing and additional characters
 
-## Build
+```javascript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { CreditCardDirectivesModule } from 'angular-cc-library';
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+import { AppComponent } from './app.component';
 
-## Running unit tests
+@NgModule({
+    imports: [BrowserModule, FormsModule, CreditCardDirectivesModule],
+    declarations: [AppComponent],
+    bootstrap: [AppComponent]
+})
+export class AppModule {
+}
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+**Credit Card Formater**
+* add `ccNumber` directive:
+```html
+<input id="cc-number" type="tel" autocomplete="cc-number" ccNumber>
+```
+* this will also apply a class name based off the card `.visa`, `.amex`, etc. See the array of card types in `credit-card.ts` for all available types
 
-## Running end-to-end tests
+**Expiration Date Formater**
+Will support format of MM/YY or MM/YYYY
+* add `ccExp` directive:
+```html
+<input id="cc-exp-date" type="tel" autocomplete="cc-exp" ccExp>
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+**CVC Formater**
+* add `ccCvc` directive:
+```html
+<input id="cc-cvc" type="tel" autocomplete="off" ccCVC>
+```
 
-## Further help
+### Validation
+Current only Model Validation is supported.
+To implement, import the validator library and apply the specific validator on each form control
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```javascript
+import { CreditCardValidator } from 'angular-cc-library';
+
+@Component({
+  selector: 'app',
+  template: `
+    <form #demoForm="ngForm" (ngSubmit)="onSubmit(demoForm)" novalidate>
+        <input id="cc-number" formControlName="creditCard" type="tel" autocomplete="cc-number" ccNumber>
+        <input id="cc-exp-date" formControlName="expirationDate" type="tel" autocomplete="cc-exp" ccExp>
+        <input id="cc-cvc" formControlName="cvc" type="tel" autocomplete="off" ccCvc>
+    </form>
+  `
+})
+export class AppComponent implements OnInit {
+  form: FormGroup;
+  submitted: boolean = false;
+
+  constructor(private _fb: FormBuilder) {}
+
+  ngOnInit() {
+    this.form = this._fb.group({
+      creditCard: ['', [<any>CreditCardValidator.validateCCNumber]],
+      expirationDate: ['', [<any>CreditCardValidator.validateExpDate]],
+      cvc: ['', [<any>Validators.required, <any>Validators.minLength(3), <any>Validators.maxLength(4)]] 
+    });
+  }
+
+  onSubmit(form) {
+    this.submitted = true;
+    console.log(form);
+  }
+}
+```
+
+# Inspiration
+
+Based on Stripe's [jquery.payment](https://github.com/stripe/jquery.payment) plugin but adapted for use by Angular2
+
+# License
+
+MIT
