@@ -1,32 +1,30 @@
 {
   "name": "ngx-mat-cc",
-  "description": "An Angular 2+ wrapper for intl-tel-input library",
+  "description": "An Angular 6+ wrapper for intl-tel-input library",
   "keywords": [
-    "Angular",
-    "Angular material",
-    "Library",
-    "Credit Card Validator",
-    "Credit Card Input",
-    "Components"
+    "angular",
+    "validate",
+    "validation",
+    "credit card",
+    "credit card format"
   ],
-  "version": "0.1.3",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SpaceBaar/ngx-mat-cc.git"
+    "url": "git+https://github.com/SpaceBaar/ngx-mat-cc.git"
   },
-  "author": "Ashitosh 'SpaceBaar' Yadav <ashitosh@spacebaar.com>",
+  "author": "Ashitosh 'SpaceBaar' Yadav <ashitosh.yadav@spacebaar.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/SpaceBaar/ngx-mat-cc/issues"
   },
-  "homepage": "https://github.com/SpaceBaar/ngx-mat-cc/",
+  "homepage": "https://github.com/SpaceBaar/ngx-mat-cc",
   "publishConfig": {
     "access": "public"
   },
   "peerDependencies": {
-    "@angular/common": "^9.0.7",
-    "@angular/core": "^9.0.7",
-    "@angular/material": "^9.1.3",
+    "@angular/common": ">6 <11",
+    "@angular/core": ">6 <11",
     "tslib": "^1.10.0"
   }
 }

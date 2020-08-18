@@ -1,18 +1,16 @@
 import { Directive, ElementRef, HostListener, Optional, Self } from '@angular/core';
-import { CreditCard } from '../shared/credit-card';
+import { CreditCard } from '../credit-card';
 import { NgControl } from '@angular/forms';
 
 @Directive({
-  selector: '[ccCVC]'
+  selector: '[ccCVC]',
 })
-
 export class CvcFormatDirective {
-
-  public target;
+  private target: HTMLInputElement;
 
   constructor(
     private el: ElementRef,
-    @Self() @Optional() private control: NgControl
+    @Self() @Optional() private control: NgControl,
   ) {
     this.target = this.el.nativeElement;
   }
@@ -29,33 +27,25 @@ export class CvcFormatDirective {
     }
   }
 
-  @HostListener('keypress', ['$event']) onKeypress(e) {
+  @HostListener('keypress', ['$event'])
+  public onKeypress(e: KeyboardEvent) {
     if (!CreditCard.restrictNumeric(e) && !CreditCard.restrictCvc(e.which, this.target)) {
       e.preventDefault();
     }
   }
-  @HostListener('paste', ['$event']) onPaste(e) {
-    this.reformatCvc(e);
-  }
-  @HostListener('change', ['$event']) onChange(e) {
-    this.reformatCvc(e);
-  }
-  @HostListener('input', ['$event']) onInput(e) {
-    this.reformatCvc(e);
-  }
 
-
-  private reformatCvc(e) {
-    setTimeout(() => {
-      let val = CreditCard.replaceFullWidthChars(this.target.value);
-      val = val.replace(/\D/g, '').slice(0, 4);
-      const oldVal = this.target.value;
-      if (val !== oldVal) {
-        this.target.selectionStart = this.target.selectionEnd = CreditCard.safeVal(val, this.target, (safeVal => {
-          this.updateValue(safeVal);
-        }));
-      }
-    });
+  @HostListener('paste')
+  @HostListener('change')
+  @HostListener('input')
+  public reformatCvc() {
+    const val = CreditCard.replaceFullWidthChars(this.target.value)
+      .replace(/\D/g, '')
+      .slice(0, 4);
+    const oldVal = this.target.value;
+    if (val !== oldVal) {
+      this.target.selectionStart = this.target.selectionEnd = CreditCard.safeVal(val, this.target, (safeVal => {
+        this.updateValue(safeVal);
+      }));
+    }
   }
-
 }

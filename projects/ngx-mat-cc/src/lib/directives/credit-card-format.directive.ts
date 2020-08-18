@@ -1,22 +1,23 @@
 import { Directive, ElementRef, HostListener, Optional, Self } from '@angular/core';
-import { CreditCard } from '../shared/credit-card';
+import { CreditCard } from '../credit-card';
 import { NgControl } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 
 @Directive({
-  selector: '[ccNumber]'
+  selector: '[ccNumber]',
+  exportAs: 'ccNumber',
 })
-
 export class CreditCardFormatDirective {
+  private target: HTMLInputElement;
+  private cards = CreditCard.cards();
 
-  public target;
-  private cards: Array<any>;
+  public resolvedScheme$ = new BehaviorSubject<string>('unknown');
 
   constructor(
     private el: ElementRef,
-    @Self() @Optional() private control: NgControl
+    @Self() @Optional() private control: NgControl,
   ) {
     this.target = this.el.nativeElement;
-    this.cards = CreditCard.cards();
   }
 
   /**
@@ -31,65 +32,61 @@ export class CreditCardFormatDirective {
     }
   }
 
-  @HostListener('keypress', ['$event']) onKeypress(e) {
+  @HostListener('keypress', ['$event'])
+  public onKeypress(e: KeyboardEvent) {
     if (CreditCard.restrictNumeric(e)) {
       if (CreditCard.isCardNumber(e.which, this.target)) {
         this.formatCardNumber(e);
       }
     } else {
       e.preventDefault();
-      return false;
     }
-
   }
-  @HostListener('keydown', ['$event']) onKeydown(e) {
+
+  @HostListener('keydown', ['$event'])
+  public onKeydown(e: KeyboardEvent) {
     this.formatBackCardNumber(e);
-    this.reFormatCardNumber(e);
-  }
-  @HostListener('keyup', ['$event']) onKeyup(e) {
-    this.setCardType(e);
-  }
-  @HostListener('paste', ['$event']) onPaste(e) {
-    this.reFormatCardNumber(e);
-  }
-  @HostListener('change', ['$event']) onChange(e) {
-    this.reFormatCardNumber(e);
-  }
-  @HostListener('input', ['$event']) onInput(e) {
-    this.reFormatCardNumber(e);
-    this.setCardType(e);
+    this.reFormatCardNumber();
   }
 
-  private formatCardNumber(e) {
-    let card;
-    let digit;
-    let length;
-    let upperLength;
-    let value;
+  @HostListener('keyup')
+  public onKeyup() {
+    this.setCardType();
+  }
 
-    digit = String.fromCharCode(e.which);
+  @HostListener('paste')
+  public onPaste() {
+    this.reFormatCardNumber();
+  }
+
+  @HostListener('change')
+  public onChange() {
+    this.reFormatCardNumber();
+  }
+
+  @HostListener('input')
+  public onInput() {
+    this.reFormatCardNumber();
+    this.setCardType();
+  }
+
+  private formatCardNumber(e: KeyboardEvent) {
+    const digit = String.fromCharCode(e.which);
     if (!/^\d+$/.test(digit)) {
       return;
     }
 
-    value = this.target.value;
-
-    card = CreditCard.cardFromNumber(value + digit);
-
-    length = (value.replace(/\D/g, '') + digit).length;
-
-    upperLength = 19;
-
-    if (card) {
-      upperLength = card.length[card.length.length - 1];
-    }
+    const value = this.target.value;
+    const card = CreditCard.cardFromNumber(value + digit);
+    const length = (value.replace(/\D/g, '') + digit).length;
+    const upperLength = card ? card.length[card.length.length - 1] : 19;
 
     if (length >= upperLength) {
       return;
     }
   }
 
-  private formatBackCardNumber(e) {
+  private formatBackCardNumber(e: KeyboardEvent) {
     const value = this.target.value;
     const selStart = this.target.selectionStart;
 
@@ -115,17 +112,15 @@ export class CreditCardFormatDirective {
     }
   }
 
-  private setCardType(e) {
-    let card;
-    const val = this.target.value;
-    const cardType = CreditCard.cardType(val) || 'unknown';
+  private setCardType() {
+    const cardType = CreditCard.cardType(this.target.value) || 'unknown';
+
+    this.resolvedScheme$.next(cardType);
 
     if (!this.target.classList.contains(cardType)) {
-
-      for (let i = 0, len = this.cards.length; i < len; i++) {
-        card = this.cards[i];
+      this.cards.forEach((card) => {
         this.target.classList.remove(card.type);
-      }
+      });
 
       this.target.classList.remove('unknown');
       this.target.classList.add(cardType);
@@ -133,17 +128,15 @@ export class CreditCardFormatDirective {
     }
   }
 
-  private reFormatCardNumber(e) {
-    setTimeout(() => {
-      let value = CreditCard.replaceFullWidthChars(this.target.value);
-      value = CreditCard.formatCardNumber(value);
-      const oldValue = this.target.value;
-      if (value !== oldValue) {
-        this.target.selectionStart = this.target.selectionEnd = CreditCard.safeVal(value, this.target, (safeVal => {
-          this.updateValue(safeVal);
-        }));
-      }
-    });
+  private reFormatCardNumber() {
+    const value = CreditCard.formatCardNumber(
+      CreditCard.replaceFullWidthChars(this.target.value),
+    );
+    const oldValue = this.target.value;
+    if (value !== oldValue) {
+      this.target.selectionStart = this.target.selectionEnd = CreditCard.safeVal(value, this.target, (safeVal => {
+        this.updateValue(safeVal);
+      }));
+    }
   }
-
 }

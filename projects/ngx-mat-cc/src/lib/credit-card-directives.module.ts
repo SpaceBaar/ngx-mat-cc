@@ -7,11 +7,12 @@ import { CvcFormatDirective } from './directives/cvc-format.directive';
 const CREDIT_CARD_LIBRARY_DIRECTIVES = [
   CreditCardFormatDirective,
   ExpiryFormatDirective,
-  CvcFormatDirective
+  CvcFormatDirective,
 ];
 
 @NgModule({
   declarations: [CREDIT_CARD_LIBRARY_DIRECTIVES],
-  exports: [CREDIT_CARD_LIBRARY_DIRECTIVES]
+  exports: [CREDIT_CARD_LIBRARY_DIRECTIVES],
 })
-export class CreditCardDirectivesModule { }
+export class CreditCardDirectivesModule {
+}

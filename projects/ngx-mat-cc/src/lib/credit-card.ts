@@ -1,76 +1,86 @@
 const defaultFormat = /(\d{1,4})/g;
-const cards = [
+
+export interface CardDefinition {
+  type: string;
+  patterns: number[];
+  format: RegExp;
+  length: number[];
+  cvvLength: number[];
+  luhn: boolean;
+}
+
+const cards: CardDefinition[] = [
   {
     type: 'maestro',
     patterns: [5018, 502, 503, 506, 56, 58, 639, 6220, 67],
     format: defaultFormat,
     length: [12, 13, 14, 15, 16, 17, 18, 19],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'forbrugsforeningen',
     patterns: [600],
     format: defaultFormat,
     length: [16],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'dankort',
     patterns: [5019],
     format: defaultFormat,
     length: [16],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'visa',
     patterns: [4],
     format: defaultFormat,
     length: [13, 16, 19],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'mastercard',
     patterns: [51, 52, 53, 54, 55, 22, 23, 24, 25, 26, 27],
     format: defaultFormat,
     length: [16],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'amex',
     patterns: [34, 37],
     format: /(\d{1,4})(\d{1,6})?(\d{1,5})?/,
     length: [15],
     cvvLength: [3, 4],
-    luhn: true
+    luhn: true,
   }, {
     type: 'dinersclub',
     patterns: [30, 36, 38, 39],
     format: /(\d{1,4})(\d{1,6})?(\d{1,4})?/,
     length: [14],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'discover',
     patterns: [60, 64, 65, 622],
     format: defaultFormat,
     length: [16],
     cvvLength: [3],
-    luhn: true
+    luhn: true,
   }, {
     type: 'unionpay',
     patterns: [62, 88],
     format: defaultFormat,
     length: [16, 17, 18, 19],
     cvvLength: [3],
-    luhn: false
+    luhn: false,
   }, {
     type: 'jcb',
     patterns: [35],
     format: defaultFormat,
     length: [16, 19],
     cvvLength: [3],
-    luhn: true
-  }
+    luhn: true,
+  },
 ];
 
 // @dynamic
@@ -80,20 +90,16 @@ export class CreditCard {
     return cards;
   }
 
-  public static cardFromNumber(num: string) {
-    let card;
-    let p;
-    let pattern;
-    let ref;
+  public static cardFromNumber(num: string): CardDefinition {
     num = (num + '').replace(/\D/g, '');
 
     for (let i = 0, len = cards.length; i < len; i++) {
-      card = cards[i];
-      ref = card.patterns;
+      const card = cards[i];
+      const ref = card.patterns;
 
       for (let j = 0, len1 = ref.length; j < len1; j++) {
-        pattern = ref[j];
-        p = pattern + '';
+        const pattern = ref[j];
+        const p = pattern + '';
 
         if (num.substr(0, p.length) === p) {
           return card;
@@ -102,8 +108,7 @@ export class CreditCard {
     }
   }
 
-  public static restrictNumeric(e): boolean {
-    let input;
+  public static restrictNumeric(e: KeyboardEvent): boolean {
     if (e.metaKey || e.ctrlKey) {
       return true;
     }
@@ -116,15 +121,15 @@ export class CreditCard {
     if (e.which < 33) {
       return true;
     }
-    input = String.fromCharCode(e.which);
+    const input = String.fromCharCode(e.which);
     return !!/[\d\s]/.test(input);
   }
 
-  public static hasTextSelected(target) {
+  public static hasTextSelected(target: HTMLInputElement) {
     return target.selectionStart !== null && target.selectionStart !== target.selectionEnd;
   }
 
-  public static cardType(num) {
+  public static cardType(num: string) {
     if (!num) {
       return num;
     }
@@ -139,18 +144,14 @@ export class CreditCard {
   }
 
   public static formatCardNumber(num: string) {
-    let card;
-    let groups;
-    let upperLength;
-
     num = num.replace(/\D/g, '');
-    card = this.cardFromNumber(num);
+    const card = this.cardFromNumber(num);
 
     if (!card) {
       return num;
     }
 
-    upperLength = card.length[card.length.length - 1];
+    const upperLength = card.length[card.length.length - 1];
     num = num.slice(0, upperLength);
 
     if (card.format.global) {
@@ -159,7 +160,7 @@ export class CreditCard {
         return matches.join(' ');
       }
     } else {
-      groups = card.format.exec(num);
+      const groups = card.format.exec(num);
       if (groups == null) {
         return;
       }
@@ -168,14 +169,14 @@ export class CreditCard {
     }
   }
 
-  public static safeVal(value: string, target: any, updateValue: (value: string) => void) {
-    let cursor = null;
+  public static safeVal(value: string, target: HTMLInputElement, updateValue: (value: string) => void): number {
+    let cursor: number | null = null;
     const last = target.value;
-    let result: any = null;
+    let result: number = null;
 
     try {
       cursor = target.selectionStart;
-    } catch (error) { }
+    } catch (error) {}
 
     updateValue(value);
 
@@ -199,56 +200,48 @@ export class CreditCard {
     return result;
   }
 
-  public static isCardNumber(key, target) {
-    let card;
-    let digit;
-    let value;
-    let result;
-    digit = String.fromCharCode(key);
+  public static isCardNumber(key: number, target: HTMLInputElement): boolean {
+    const digit = String.fromCharCode(key);
     if (!/^\d+$/.test(digit)) {
       return false;
     }
     if (CreditCard.hasTextSelected(target)) {
       return true;
     }
-    value = (target.value + digit).replace(/\D/g, '');
-    card = CreditCard.cardFromNumber(value);
-    if (card) {
-      result = value.length <= card.length[card.length.length - 1];
-    } else {
-      result = value.length <= 16;
-    }
+    const value = (target.value + digit).replace(/\D/g, '');
+    const card = CreditCard.cardFromNumber(value);
 
-    return result;
+    if (card) {
+      return value.length <= card.length[card.length.length - 1];
+    } else {
+      return value.length <= 16;
+    }
   }
 
-  public static restrictExpiry(key, target) {
-    let digit;
-    let value;
-    digit = String.fromCharCode(key);
+  public static restrictExpiry(key: number, target: HTMLInputElement) {
+    const digit = String.fromCharCode(key);
     if (!/^\d+$/.test(digit) || this.hasTextSelected(target)) {
       return false;
     }
-    value = `${target.value}${digit}`.replace(/\D/g, '');
+    const value = `${target.value}${digit}`.replace(/\D/g, '');
 
     return value.length > 6;
   }
 
-  public static replaceFullWidthChars(str) {
+  public static replaceFullWidthChars(str: string) {
     if (str === null) {
       str = '';
     }
 
-    let chr;
-    let idx;
     const fullWidth = '\uff10\uff11\uff12\uff13\uff14\uff15\uff16\uff17\uff18\uff19';
     const halfWidth = '0123456789';
     let value = '';
     const chars = str.split('');
 
-    for (const char of chars) {
-      chr = char;
-      idx = fullWidth.indexOf(chr);
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < chars.length; i++) {
+      let chr = chars[i];
+      const idx = fullWidth.indexOf(chr);
       if (idx > -1) {
         chr = halfWidth[idx];
       }
@@ -257,19 +250,16 @@ export class CreditCard {
     return value;
   }
 
-  public static formatExpiry(expiry) {
+  public static formatExpiry(expiry: string) {
     const parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,4})?/);
-    let mon;
-    let sep;
-    let year;
 
     if (!parts) {
       return '';
     }
 
-    mon = parts[1] || '';
-    sep = parts[2] || '';
-    year = parts[3] || '';
+    let mon  = parts[1] || '';
+    let sep  = parts[2] || '';
+    const year = parts[3] || '';
 
     if (year.length > 0) {
       sep = ' / ';
@@ -285,7 +275,7 @@ export class CreditCard {
     return `${mon}${sep}${year}`;
   }
 
-  public static restrictCvc(key, target) {
+  public static restrictCvc(key: number, target: HTMLInputElement) {
     const digit = String.fromCharCode(key);
     if (!/^\d+$/.test(digit) || this.hasTextSelected(target)) {
       return false;
@@ -294,13 +284,15 @@ export class CreditCard {
     return val.length <= 4;
   }
 
-  public static luhnCheck(num) {
+  public static luhnCheck(num: string) {
     const digits = num.split('').reverse();
     let odd = true;
     let sum = 0;
 
-    for (let digit of digits) {
-      digit = parseInt(digit, 10);
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < digits.length; i++) {
+      let digit = parseInt(digits[i], 10);
+      // tslint:disable-next-line:no-conditional-assignment
       if ((odd = !odd)) {
         digit *= 2;
       }
