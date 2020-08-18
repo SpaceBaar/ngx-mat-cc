@@ -10,7 +10,6 @@
     "postinstall": "ngcc",
     "precommit": "lint-staged"
   },
-  "private": true,
   "dependencies": {
     "@angular-builders/jest": "^9.0.0",
     "@angular/common": "~10.0.10",
