@@ -2,6 +2,7 @@
   "name": "ngx-mat-cc",
   "version": "2.0.1",
   "scripts": {
+    "run:demo": "ng serve example",
     "build:library": "ng build ngx-mat-cc --prod ",
     "test": "ng test",
     "lint": "ng lint",

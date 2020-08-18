@@ -12,7 +12,7 @@ Angular CC Library - for validation and formating of input parameters
 
 ## Installation
 ```shell
-npm install angular-cc-library --save
+npm install ngx-mat-cc --save
 ```
 
 ## Formating Directive
@@ -23,7 +23,7 @@ All fields must be `type='tel'` in order to support spacing and additional chara
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { CreditCardDirectivesModule } from 'angular-cc-library';
+import { CreditCardDirectivesModule } from 'ngx-mat-cc';
 
 import { AppComponent } from './app.component';
 
@@ -61,7 +61,7 @@ Current only Model Validation is supported.
 To implement, import the validator library and apply the specific validator on each form control
 
 ```javascript
-import { CreditCardValidator } from 'angular-cc-library';
+import { CreditCardValidator } from 'ngx-mat-cc';
 
 @Component({
   selector: 'app',
