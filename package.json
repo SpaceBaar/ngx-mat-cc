@@ -1,13 +1,13 @@
 {
   "name": "ngx-mat-cc",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "scripts": {
     "run:demo": "ng serve example",
     "build:library": "ng build ngx-mat-cc --prod ",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "ngcc",
+    "postinstall": "ngcc --tsconfig \"./projects/ngx-mat-cc/tsconfig.lib.json\"",
     "precommit": "lint-staged"
   },
   "dependencies": {
