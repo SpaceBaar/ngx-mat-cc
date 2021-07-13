@@ -1,9 +1,9 @@
 {
   "name": "ngx-mat-cc",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "scripts": {
     "run:demo": "ng serve example",
-    "build:library": "ng build ngx-mat-cc",
+    "build:library": "ng build ngx-mat-cc --configuration production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
